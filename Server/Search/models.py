@@ -19,3 +19,5 @@ class GameInfo(models.Model):
     introduction = models.TextField(null=True)
     picture = models.TextField(null=True)
 
+    def __str__(self):
+        return self.name
