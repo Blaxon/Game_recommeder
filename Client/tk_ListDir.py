@@ -60,15 +60,17 @@ class DirList:
         self.doLS()
 
     def doLS(self, ev=None):
-        error = ' '
+        error = ''
         tdir = self.cwd.get()
-        if not tdir: tdir = os.curdir
+        if not tdir:
+            tdir = os.curdir
 
         if not os.path.exists(tdir):
             error = tdir + ': no such file'
         elif not os.path.isdir(tdir):
             error = tdir + ': not a directory'
 
+        print(tdir, 'here i am')
         if error:
             self.cwd.set(error)
             self.top.update()
@@ -79,10 +81,10 @@ class DirList:
             self.dirs.config(selectbackground='LightSkyBlue')
             self.top.update()
             return
-
         self.cwd.set('FETCHING DIRECTORY CONTENTS...')
         self.top.update()
         dirlist = os.listdir(tdir)
+        print(dirlist)
         dirlist.sort()
         os.chdir(tdir)
         self.dirl.config(text=os.getcwd())
@@ -92,7 +94,7 @@ class DirList:
         for eachFile in dirlist:
             self.dirs.insert(END, eachFile)
         self.cwd.set(os.curdir)
-        self.dirs.config(selectbackground='LighSkyBlue')
+        self.dirs.config(selectbackground='LightSkyBlue')
 
 
 def main():
