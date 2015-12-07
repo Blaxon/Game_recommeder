@@ -86,11 +86,11 @@ class DirList:
         dirlist = os.listdir(tdir)
         print(dirlist)
         dirlist.sort()
-        os.chdir(tdir)
-        self.dirl.config(text=os.getcwd())
+        os.chdir(tdir)  # change the current working directory
+        self.dirl.config(text=os.getcwd())  # get string representing the current working directory
         self.dirs.delete(0, END)
-        self.dirs.insert(END, os.curdir)
-        self.dirs.insert(END, os.pardir)
+        self.dirs.insert(END, os.curdir)  # current dir-> .
+        self.dirs.insert(END, os.pardir)  # parent dir-> ..
         for eachFile in dirlist:
             self.dirs.insert(END, eachFile)
         self.cwd.set(os.curdir)
