@@ -2,6 +2,7 @@ from django.shortcuts import render
 import traceback
 
 # Create your views here.
+import json
 from django.http import HttpResponse
 from haystack.query import SearchQuerySet
 from .models import User
@@ -30,6 +31,10 @@ def add_game(req):
     try:
         _user_name = req.GET['username']
         _game_name = req.GET['game']
+
+        # 查找出该游戏的准确名称
+        s = SearchQuerySet()
+        _game_name = s.auto_query(_game_name)[0].name
 
         _user = User.objects.filter(username=_user_name)
         if len(_user) == 0:
@@ -94,7 +99,7 @@ def game_recommend(req):
     s = SearchQuerySet()
     # 找到用户所玩的游戏
     for _game in games:
-        item = s.auto_query(_game)[0]
+        item = GameInfo.objects.filter(name=_game)[0]
         if item not in dic_games:
             dic_games.append(item)
     # 找到对应类型游戏，每个类型取50个
