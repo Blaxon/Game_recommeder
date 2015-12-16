@@ -13,6 +13,18 @@ def index(req):
     return HttpResponse("You're at User app.")
 
 
+def check(req):
+    """
+    检查账户是否存在，如果不存在则新建
+    """
+    _id = req.GET['id']
+    result = User.objects.get_or_create(username=_id)
+    if result[1]:  # True 为新建账户
+        return HttpResponse('new')
+    else:
+        return HttpResponse('exists')
+
+
 def register(req):
     """
     建立新账户
@@ -48,12 +60,12 @@ def add_game(req):
             _user.games = _game_name
             _user.times = '0'
             _user.save()
-            return HttpResponse('Game added!----%s' % _user.games)
+            return HttpResponse('Game added\n%s' % _user.games)
         else:
             _user.games += '|' + _game_name
             _user.times += '|0'
             _user.save()
-            return HttpResponse('Game added!----%s' % _user.games)
+            return HttpResponse('Game added\n%s' % _user.games)
 
     except Exception as e:
         traceback.print_exc()
@@ -92,6 +104,8 @@ def game_recommend(req):
     这里的输入为用户名称，我们自动的从后台调出用户数据。
     返回值为 列表
     """
+    import time
+    start_time = time.time()
     _user = req.GET['username']
     _user = User.objects.filter(username=_user)[0]
     games = _user.games.split('|')
@@ -109,7 +123,7 @@ def game_recommend(req):
             continue
         tags = item.tag.strip().split(' ')
         for _tag in tags:
-            corr_games = s.auto_query(_tag)[:50]
+            corr_games = s.auto_query(_tag)[:20]
             for _ in corr_games:
                 if _.name not in _map:
                     _map[_.name] = 0
@@ -122,6 +136,7 @@ def game_recommend(req):
     for _game in sorted_games:
         result.extend(GameInfo.objects.filter(name=_game[0]))
 
+    print(time.time()-start_time)
     print(result)
 
     return HttpResponse(result)

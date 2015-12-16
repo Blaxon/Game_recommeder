@@ -8,4 +8,5 @@ urlpatterns = [
     url(r'^addgame/', views.add_game, name='add game'),
     url(r'^updatetime/', views.update_time, name='update time'),
     url(r'^recommend/', views.game_recommend, name='game recommend'),
+    url(r'^check/', views.check, name='check'),
 ]
