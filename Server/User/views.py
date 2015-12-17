@@ -88,7 +88,7 @@ def update_time(req):
             return HttpResponse("This game is not in user's game list.")
         _index = games.index(_game)
         times = _user.times.split('|')
-        times[_index] = str(float(times[_index]) + float(_time))
+        times[_index] = _time
         _user.times = '|'.join(times)
         _user.save()
         return HttpResponse('update complete!')
