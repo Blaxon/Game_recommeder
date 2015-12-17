@@ -27,7 +27,7 @@ class GameRecommend(QWidget):
         local_game = QLabel('本地游戏')
         game_recommend = QLabel('游戏推荐')
         self.local_game = QListWidget()
-        self.recommend_page = QWebPage()  # 现在不知道怎么把这个东西加进去,先用tmp填补空缺
+        self.recommend_page = QWebView()  # 现在不知道怎么把这个东西加进去,先用tmp填补空缺
         add_btn = QPushButton('添加游戏')
         refresh_btn = QPushButton('刷新')
 
@@ -39,10 +39,10 @@ class GameRecommend(QWidget):
         grid_layout.addWidget(local_game, 1, 0, 1, 1)
         grid_layout.addWidget(add_btn, 1, 1, 1, 1)
         grid_layout.addWidget(game_recommend, 1, 2, 1, 1)
-        grid_layout.addWidget(refresh_btn, 1, 31, 1, 1)
+        grid_layout.addWidget(refresh_btn, 1, 48, 1, 1)
         grid_layout.addWidget(self.local_game, 2, 0, 1, 2)
         tmp = QTextEdit()
-        grid_layout.addWidget(tmp, 2, 2, 1, 30)
+        grid_layout.addWidget(self.recommend_page, 2, 2, 1, 48)
 
         dlgLayout = QVBoxLayout()
         dlgLayout.setContentsMargins(20, 5, 20, 5)
@@ -50,7 +50,7 @@ class GameRecommend(QWidget):
 
         self.setLayout(dlgLayout)
         self.setWindowTitle("游戏推荐系统")
-        self.resize(600, 400)
+        self.resize(680, 480)
 
         self.load()
         self.refresh()
@@ -68,7 +68,7 @@ class GameRecommend(QWidget):
 
     def refresh(self):
         """
-        重载界面，目的包括：更新推荐列表、更新游戏列表、同步后台
+        重载界面，目的包括：更新推荐列表、更新游戏列表
         """
         print('refresh')
         # 更新游戏列表
@@ -76,9 +76,14 @@ class GameRecommend(QWidget):
         for item in sorted(self.games.items()):
             self.local_game.insertItem(0, item[0])
 
+        # 更新推荐列表
+        url = 'http://127.0.0.1:8000/user/recommend/?username=%s' % self.id
+        self.recommend_page.load(QUrl(url))
+        self.show()
+
     def run_game(self):
         """
-        运行游戏，并记录游戏时间
+        运行游戏，并记录游戏时间,退出游戏后更新后台游戏时间
         """
         start_time = time.time()
         game_name = self.local_game.selectedItems()[0].text()
@@ -104,7 +109,7 @@ class GameRecommend(QWidget):
         play_time = time.time() - start_time
         print('game closed. play time: %.4f' % play_time)
         self.games[game_name]['time'] += play_time
-        update_time(self.id, self.games[game_name]['another_name'], play_time)
+        update_time(self.id, self.games[game_name]['another_name'], self.games[game_name]['time'])
         print('time updated. now total time %.2f' % self.games[game_name]['time'])
 
     def load(self):
