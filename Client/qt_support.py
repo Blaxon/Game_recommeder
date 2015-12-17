@@ -34,12 +34,24 @@ def add_game_to_server(user_id, game_name):
     """
     print('user: ', user_id, ' add game :', game_name)
     add_url = 'http://127.0.0.1:8000/user/addgame/?username=%s&game=%s'
-    req_url = add_url % (user_id, request.quote(game_name))
+    req_url = add_url % (user_id, request.quote(game_name))  # 使用quote对中文进行百分号编码
     content = request.urlopen(req_url).read().decode()
-    print(req_url)
     if 'Game added' in content:
         another_name = content.split('\n')[1].strip().split('|')[-1]
         return another_name
+    else:
+        raise Exception(content)
+
+
+def update_time(user_id, another_name, play_time):
+    """
+    想服务器更新游戏时间
+    """
+    update_url = 'http://127.0.0.1:8000/user/updatetime/?username=%s&game=%s&time=%.4f'
+    req_url = update_url % (user_id, request.quote(another_name), play_time)
+    content = request.urlopen(req_url).read().decode()
+    if 'complete' in content:
+        return True
     else:
         raise Exception(content)
 
