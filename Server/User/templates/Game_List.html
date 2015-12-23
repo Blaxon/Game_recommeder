@@ -1,0 +1,29 @@
+<html>
+<body>
+<h3>游戏推荐列表</h3>
+<p>{{ time }} s</p>
+{% for result in page.object_list %}
+    <p>
+        <a href="{{ result.get_absolute_url }}">
+            {{ result.name }} | {{ result.score }}
+        </a><br/>
+        <img src=" {{ result.picture }} " width="100" height="100">
+        {{ result.introduction }}
+    </p>
+{% empty %}
+    <p>没有结果发现。</p>
+{% endfor %}
+
+{% if page.has_previous or page.has_next %}
+    <div>
+        {% if page.has_previous %}<a href="?username={{ user }}&page={{ page.previous_page_number }}">
+        {% endif %}<< Previous{% if page.has_previous %}</a>{% endif %}
+        |
+        第{{ page.number }}页
+        |
+        {% if page.has_next %}<a href="?username={{ user }}&page={{ page.next_page_number }}">
+        {% endif %}Next >>{% if page.has_next %}</a>{% endif %}
+    </div>
+{% endif %}
+</body>
+</html>
