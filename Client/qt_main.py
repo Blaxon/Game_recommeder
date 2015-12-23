@@ -77,7 +77,7 @@ class GameRecommend(QWidget):
             self.local_game.insertItem(0, item[0])
 
         # 更新推荐列表
-        url = 'http://127.0.0.1:8000/user/recommend/?username=%s' % self.id
+        url = 'http://127.0.0.1:8000/user/recommend/?username=%s&page=1' % self.id
         self.recommend_page.load(QUrl(url))
         self.show()
 
