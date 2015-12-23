@@ -5,8 +5,13 @@ import traceback
 import json
 from django.http import HttpResponse
 from haystack.query import SearchQuerySet
+from django.template import loader, Context
+from django.core.paginator import Paginator
+
 from .models import User
 from Search.models import GameInfo
+
+USER_INFO = {}
 
 
 def index(req):
@@ -99,6 +104,8 @@ def update_time(req):
 
 def game_recommend(req):
     """
+    加入了分页技术，添加了一个全局变量用以存储当前活跃用户的用户推荐表，以此来加快推荐列表读取速度。
+    ---15.12.24更新---
     向用户推荐游戏；通过获取用户的游戏信息，我们查找其游戏的类型，并使用whoosh进行搜索其最匹配的游戏；
     按照得分高低，发行时间进行排序推荐。
     这里的输入为用户名称，我们自动的从后台调出用户数据。
@@ -107,36 +114,53 @@ def game_recommend(req):
     import time
     start_time = time.time()
     _user = req.GET['username']
-    _user = User.objects.filter(username=_user)[0]
-    games = _user.games.split('|')
-    dic_games = []
-    s = SearchQuerySet()
-    # 找到用户所玩的游戏
-    for _game in games:
-        item = GameInfo.objects.filter(name=_game)[0]
-        if item not in dic_games:
-            dic_games.append(item)
-    # 找到对应类型游戏，每个类型取50个
-    _map = {}
-    for item in dic_games:
-        if item.tag is None:
-            continue
-        tags = item.tag.strip().split(' ')
-        for _tag in tags:
-            corr_games = s.auto_query(_tag)[:20]
-            for _ in corr_games:
-                if _.name not in _map:
-                    _map[_.name] = 0
-                else:
-                    _map[_.name] += 1
+    if _user in USER_INFO:
+        print('user rec cache already exists.')
+        _page = req.GET['page']
+        p = USER_INFO[_user]
+        p = p.page(_page)
+    else:
+        print('build new user rec cache...')
+        _user_object = User.objects.get(username=_user)  # 用get替换了之前的filter，速度提高不少
+        games = _user_object.games.split('|')
+        dic_games = []
+        s = SearchQuerySet()
+        # 找到用户所玩的游戏
+        for _game in games:
+            item = GameInfo.objects.filter(name=_game)[0]
+            if item not in dic_games:
+                dic_games.append(item)
+        # 找到对应类型游戏，每个类型取50个
+        _map = {}
+        for item in dic_games:
+            if item.tag is None:
+                continue
+            tags = item.tag.strip().split(' ')
+            for _tag in tags:
+                corr_games = s.auto_query(_tag)[:20]
+                for _ in corr_games:
+                    if _.name not in _map:
+                        _map[_.name] = 0
+                    else:
+                        _map[_.name] += 1
 
-    sorted_games = sorted(_map.items(), key=lambda x: x[1], reverse=True)
+        sorted_games = sorted(_map.items(), key=lambda x: x[1], reverse=True)
 
-    result = []
-    for _game in sorted_games:
-        result.extend(GameInfo.objects.filter(name=_game[0]))
+        result = []
+        for _game in sorted_games:
+            result.append(GameInfo.objects.get(name=_game[0]))
 
-    print(time.time()-start_time)
-    print(result)
+        pagi = Paginator(result, 10)
+        USER_INFO[_user_object.username] = pagi
+        p = pagi.page(1)
 
-    return HttpResponse(result)
+    time_consume = time.time() - start_time
+    print('%.5f seconds take.' % time_consume)
+
+    # print(len(result))
+    game_context = Context({'page': p,
+                            'time': time_consume,
+                            'user': _user})
+    temp = loader.get_template('Game_List.html')
+
+    return HttpResponse(temp.render(game_context))
