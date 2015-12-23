@@ -21,3 +21,6 @@ class GameInfo(models.Model):
 
     def __str__(self):
         return self.name
+
+    def get_absolute_url(self):
+        return '/search/game/?name=%s' % self.name
