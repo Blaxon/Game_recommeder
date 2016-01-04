@@ -32,7 +32,8 @@ class Application(tk.Frame):
         tk.Frame.__init__(self, master)
         self.pack()
 
-        self.top = tk.Label(self, text='你好，欢迎使用游戏推荐系统')
+        self.top = tk.Label(self, text='你好，欢迎使用游戏推荐系统。请登录', fg='blue')
+        self.top.bind('<Double-1>', self.user_login)
         self.top.pack(side='top')
 
         self.middle = tk.Frame(self, bg='LightSkyBlue')
@@ -54,7 +55,8 @@ class Application(tk.Frame):
     def user_register(self):
         pass
 
-    def user_login(self):
+    def user_login(self, ev=None):
+        print('login')
         pass
 
     def add_game(self):
