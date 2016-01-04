@@ -161,6 +161,8 @@ class GameRecommend(QWidget):
         elif content == 'exists':
             print('user already exists.')
             return
+        elif content == 'connection error':
+            _e = QMessageBox.warning(self, 'Error', 'Connection Failed')
         else:
             print('error. incorrect message received.')
 

@@ -7,7 +7,7 @@ pc端程序的支持程序
 
 
 import uuid
-from urllib import request
+from urllib import request, error
 
 
 def get_mac_address():
@@ -23,9 +23,13 @@ def check_id(user_id):
     """
     检查id是否存在
     """
-    check_url = 'http://127.0.0.1:8000/user/check/?id='
-    content = request.urlopen(check_url+user_id).read()
-    return content.decode()
+    try:
+        check_url = 'http://127.0.0.1:8000/user/check/?id='
+        content = request.urlopen(check_url+user_id).read()
+        return content.decode()
+    except error.URLError:
+        print('Connection Error,Please check your connection.')
+        return 'connection error'
 
 
 def add_game_to_server(user_id, game_name):
