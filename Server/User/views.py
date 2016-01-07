@@ -154,12 +154,12 @@ def game_recommend(req):
         USER_INFO[_user_object.username] = pagi
         p = pagi.page(1)
 
-    time_consume = time.time() - start_time
+    time_consume = (time.time() - start_time) * 1000
     print('%.5f seconds take.' % time_consume)
 
     # print(len(result))
     game_context = Context({'page': p,
-                            'time': time_consume,
+                            'time': '%.5f' % time_consume,
                             'user': _user})
     temp = loader.get_template('Game_List.html')
 
