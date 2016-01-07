@@ -21,4 +21,6 @@ urlpatterns = [
     url(r'^blog/index/$', 'blog.views.index'),
     url(r'^search/', include('Search.urls')),
     url(r'^user/', include('User.urls')),
+    url(r'^site_media/(?P<path>.*)', 'django.views.static.serve',
+        {'document_root': '/Users/xianghang/Desktop/Game_recommend/Server/User/templates'}),
 ]
