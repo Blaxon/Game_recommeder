@@ -4,7 +4,8 @@
 <style>
     a
     {
-        color:#f5f5f5;
+        color:#c7d5e0;
+        font-size:18px
     }
     img
     {
@@ -28,19 +29,26 @@
     #title
     {
         align:left;
-        font-size:200%;
+        font-size:180%;
     }
     #time
     {
-
+        color:#3f7696;
+        padding-left:10px;
     }
     #game
     {
-        font-size:15px;
-        background-color:rgba( 48, 95, 128, 0.7 );
+        color:#c7d5e0;
+        font-size:80%;
+        background-color:rgba( 48, 95, 128, 0.5 );
         padding-top:8px;
-        padding-bottom:22px;
+        padding-bottom:14px;
         padding-left:8px;
+    }
+    #turn_page
+    {
+        padding-top:20px;
+        color:#c7d5e0;
     }
     .clear
     {
@@ -53,11 +61,13 @@
 <p id="time">推荐耗时：{{ time }} ms</p>
 {% for result in page.object_list %}
     <div id="game">
-        <img src="{{ result.picture }}" width="100" height="100">
+        <img src="{{ result.picture }}" width="90" height="90">
         <div id="info">
             <table cellpadding="5">
                 <tr><td id="game_name" colspan="5">
-                <a href="{{ result.get_absolute_url }}">{{ result.name }}</a> </td></tr>
+                <a href="{{ result.get_absolute_url }}">
+                    {{ result.name }}  | 评分：{{ result.score }}
+                </a> </td></tr>
             <tr><td colspan="1">游戏类型：</td>
                 <td colspan="1">{{ result.type }}</td>
                 <td width="20"></td>
@@ -76,7 +86,7 @@
 {% endfor %}
 
 {% if page.has_previous or page.has_next %}
-    <div>
+    <div id="turn_page">
         {% if page.has_previous %}<a href="?username={{ user }}&page={{ page.previous_page_number }}">
         {% endif %}<< Previous{% if page.has_previous %}</a>{% endif %}
         |
