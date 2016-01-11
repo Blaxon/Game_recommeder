@@ -27,7 +27,6 @@ def post_game(req):
     """
     _game_name = req.GET['name']
     game = GameInfo.objects.get(name=_game_name)
-    c = Context({'game_name': game.name,
-                 'game_info': game.introduction})
+    c = Context({'game': game})
     t = loader.get_template('Single_Game.html')
     return HttpResponse(t.render(c))
