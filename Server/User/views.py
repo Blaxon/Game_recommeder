@@ -137,7 +137,7 @@ def game_recommend(req):
                 continue
             tags = item.tag.strip().split(' ')
             for _tag in tags:
-                corr_games = s.auto_query(_tag)[:20]
+                corr_games = s.auto_query(_tag).order_by('-game_score')[:20]
                 for _ in corr_games:
                     if _.name not in _map:
                         _map[_.name] = 0
