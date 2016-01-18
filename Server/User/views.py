@@ -77,6 +77,34 @@ def add_game(req):
         return HttpResponse('error occur')
 
 
+def del_game(req):
+    """
+    删除用户的某个游戏记录
+    更新游戏记录
+    :param req:
+    :return: 返回执行结果
+    """
+    try:
+        _user_name = req.GET['username']
+        _game_name = req.GET['game']
+
+        _user = User.objects.filter(username=_user_name)[0]
+        _games = _user.games.split('|')
+        _times = _user.times.split('|')
+        _i = _games.index(_game_name)
+        _games.pop(_i)
+        _times.pop(_i)
+
+        _user.games = '|'.join(_games)
+        _user.times = '|'.join(_times)
+
+        _user.save()
+        return HttpResponse('success')
+    except :
+        traceback.print_exc()
+        return HttpResponse('failed')
+
+
 def update_time(req):
     """
     更新游戏时间，一次更新一个游戏
@@ -104,6 +132,8 @@ def update_time(req):
 
 def game_recommend(req):
     """
+    添加对搜索结果按game_score的排序
+    ---16.1.11更新---
     加入了分页技术，添加了一个全局变量用以存储当前活跃用户的用户推荐表，以此来加快推荐列表读取速度。
     ---15.12.24更新---
     向用户推荐游戏；通过获取用户的游戏信息，我们查找其游戏的类型，并使用whoosh进行搜索其最匹配的游戏；
