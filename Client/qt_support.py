@@ -47,6 +47,22 @@ def add_game_to_server(user_id, game_name):
         raise Exception(content)
 
 
+def del_game_from_server(user_id, game_name):
+    """
+    向服务器发送删除用户游戏请求
+    :param user_id: 用户账号
+    :param game_name: 游戏名称
+    :return: 返回处理结果
+    """
+    del_url = 'http://127.0.0.1:8000/user/delgame/?username=%s&game=%s'
+    req_url = del_url % (user_id, request.quote(game_name))
+    content = request.urlopen(req_url).read().decode()
+    if 'success' in content:
+        return True
+    else:
+        return False
+
+
 def update_time(user_id, another_name, play_time):
     """
     想服务器更新游戏时间

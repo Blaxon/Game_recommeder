@@ -9,6 +9,7 @@ import time
 import traceback
 import psutil
 
+from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtWebKitWidgets import *
@@ -24,16 +25,18 @@ class GameRecommend(QWidget):
 
         self.games = {}  # 存储游戏数据的列表，从record文件中读取。里面有游戏名、游戏路径和游戏时间信息
         self.id = get_mac_address()
+        self.local_game = QListWidget()
+        self.recommend_page = QWebView()
         local_game = QLabel('本地游戏')
         game_recommend = QLabel('游戏推荐')
-        self.local_game = QListWidget()
-        self.recommend_page = QWebView()  # 现在不知道怎么把这个东西加进去,先用tmp填补空缺
         add_btn = QPushButton('添加游戏')
         refresh_btn = QPushButton('刷新')
 
         add_btn.clicked.connect(self.add_game)
         refresh_btn.clicked.connect(self.refresh)
         self.local_game.doubleClicked.connect(self.run_game)
+        self.local_game.setContextMenuPolicy(Qt.CustomContextMenu)  # 设置QListWidget的右键菜单为自定义
+        self.local_game.customContextMenuRequested[QPoint].connect(self.right_click_menu)  # 绑定
 
         grid_layout = QGridLayout()
         grid_layout.addWidget(local_game, 1, 0, 1, 1)
@@ -94,6 +97,8 @@ class GameRecommend(QWidget):
         process_name = self.games[game_name]['dir'].split('/')[-1][:-4]  # 从路径中截取出进程的名称
         print('process name identified: ', process_name)
 
+        process_pid = None
+
         # 找到进程pid
         for _proc in psutil.process_iter():
             try:
@@ -102,6 +107,10 @@ class GameRecommend(QWidget):
                     process_pid = _proc.pid
             except psutil.NoSuchProcess:
                 pass
+
+        if process_pid is None:
+            print('process pid not found')
+            return
 
         while psutil.pid_exists(process_pid):
             pass
@@ -135,6 +144,7 @@ class GameRecommend(QWidget):
         """
         try:
             _f = open('qt_record', 'r+')
+            _f.truncate()
             for item in self.games.items():
                 print('write---', item)
                 line = item[0] + '|' + item[1]['dir'] + '|' + '%.4f' % item[1]['time'] + \
@@ -165,6 +175,31 @@ class GameRecommend(QWidget):
             _e = QMessageBox.warning(self, 'Error', 'Connection Failed')
         else:
             print('error. incorrect message received.')
+
+    def right_click_menu(self, point):
+        """
+        local_game的右键菜单
+        :param point: 默认参数
+        """
+        menu = QMenu(self.local_game)
+        remove = menu.addAction(QAction('删除游戏', self, triggered=self.delGame))
+        menu.exec_(QCursor.pos())
+
+    def delGame(self):
+        """
+        删除选中游戏，并同步服务器
+        :return:
+        """
+        try:
+            for item in self.local_game.selectedItems():
+                game_name = item.text()
+                print('删除 '+game_name)
+                another_name = self.games[game_name]['another_name']  # 找到another_name
+                self.games.pop(game_name)  # 从self.games中删除
+                self.local_game.takeItem(self.local_game.row(item))  # 从QListWidget中删除
+                assert del_game_from_server(self.id, another_name)
+        except :
+            traceback.print_exc()
 
 
 if __name__ == '__main__':
