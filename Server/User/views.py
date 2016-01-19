@@ -99,6 +99,10 @@ def del_game(req):
         _user.times = '|'.join(_times)
 
         _user.save()
+
+        if _user_name in USER_INFO:  # 更新列表
+            USER_INFO.pop(_user_name)
+
         return HttpResponse('success')
     except :
         traceback.print_exc()
