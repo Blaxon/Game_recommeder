@@ -35,6 +35,7 @@ def check_id(user_id):
 def add_game_to_server(user_id, game_name):
     """
     向服务器账户添加游戏，返回another_name
+    若报异常则返回Error
     """
     print('user: ', user_id, ' add game :', game_name)
     add_url = 'http://127.0.0.1:8000/user/addgame/?username=%s&game=%s'
@@ -44,7 +45,7 @@ def add_game_to_server(user_id, game_name):
         another_name = content.split('\n')[1].strip().split('|')[-1]
         return another_name
     else:
-        raise Exception(content)
+        return "Error"
 
 
 def del_game_from_server(user_id, game_name):

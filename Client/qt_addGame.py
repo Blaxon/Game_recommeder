@@ -51,11 +51,15 @@ class AddGame(QWidget):
         print('添加游戏 :', game_name, self.dir.text())
         # self.father.games.append([self.name_edit.text(), self.dir.text()])
         another_name = add_game_to_server(self.father.id, game_name)
-        self.father.games[game_name] = {'dir': self.dir.text(),
-                                                    'time': 0,
-                                                    'another_name': another_name}
-        self.father.refresh()
-        QMessageBox.information(self, '提示', '游戏添加成功！')
+        print(another_name)
+        if another_name != "Error":
+            self.father.games[game_name] = {'dir': self.dir.text(),
+                                                        'time': 0,
+                                                        'another_name': another_name}
+            self.father.refresh()
+            QMessageBox.information(self, '提示', '游戏添加成功！')
+        else:
+            QMessageBox.information(self, '注意', '游戏添加失败，游戏名称无法识别！')
 
         # 清除痕迹
         self.name_edit.clear()
